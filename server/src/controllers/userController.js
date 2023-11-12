@@ -1,9 +1,9 @@
 const createError = require('http-errors');
+const fs = require('fs');
 const User = require('../models/userModel');
-const { successResponse } = require('./responseController');
-const mongoose = require('mongoose');
-const { findUserId } = require('../services/findUserId');
-
+const {successResponse} = require('./responseController');
+const {findWithId} = require('../services/findItem');
+const { userInfo } = require('os');
 
 const getUsers = async (req,res,next)=>{
     try {
@@ -20,19 +20,10 @@ const getUsers = async (req,res,next)=>{
                 {phone:{$regex:searchRegExp}},
             ]
         };
-        const options = {
-            password: 0
-        };
-
-        
-
+        const options = {password: 0};
         const users = await User.find(filter, options).limit(limit).skip((page - 1 ) * limit);
-        
-
         const count = await User.find(filter).countDocuments();
-        
         if(!users) throw createError(404,"No users Found :(")
-        
         return successResponse(res,{statusCode:200, message:"Users returned",payloader:{
             users,
             pagination:{
@@ -50,13 +41,38 @@ const getUsers = async (req,res,next)=>{
 const getUser = async (req,res,next)=>{
     try {
         const id = req.params.id;
-        const user = await findUserId(id);
-        return successResponse(res,{statusCode:200, message:"User returned",payloader:{user}
-    });
+        const options ={password:0};
+        const user = await findWithId(id,options);
+        return successResponse(res,{statusCode:200, message:"User returned",payloader:{user}});
     } catch (error) {
-        
         next(error);
     }
 };
 
-module.exports = {getUsers, getUser};
+const deleteUser = async (req,res,next)=>{
+    try {
+        const id = req.params.id;
+        const options ={password:0};
+        const user = await findWithId(id,options);
+        const userImagePath = user.image;
+        fs.access(userImagePath, (err)=>{
+            if (err){
+                console.error("User image does not exist");
+            } else{
+                fs.unlink(userImagePath, (err) => {
+                    if (err) throw err;
+                    console.log("user image was delete")
+                })
+            }
+        })
+        await User.findByIdAndDelete({
+            _id: id,
+            isAdmin: false,
+        });
+        return successResponse(res,{statusCode:200, message:"User deleted"});
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = {getUsers, getUser, deleteUser};
