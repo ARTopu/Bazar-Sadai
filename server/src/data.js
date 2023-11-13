@@ -8,6 +8,13 @@ const data = {
         address: "Bashundhara",
     },
     {
+        name: "Sahrukh Khan",
+        email: "sarukh@gmail.com",
+        password: "56789",
+        phone: "01712345567",
+        address: "Mannat",
+    },
+    {
         name: "Tasnim Hasan",
         email: "tasnim@gmail.com",
         password: "54321",
