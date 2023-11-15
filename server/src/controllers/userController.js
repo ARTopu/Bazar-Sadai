@@ -70,7 +70,11 @@ const deleteUserById = async (req,res,next)=>{
 };
 const processRegister = async (req,res,next)=>{
     try {
-        
+        const { name, email, password, phone, address }= req.body;
+        const userExists = await User.exists({email:email});
+        if(userExists){
+            throw createError(406,"User with this email already exists. Please sign in");
+        }
         return successResponse(res,{statusCode:200, message:"User deleted"});
     } catch (error) {
         next(error);
