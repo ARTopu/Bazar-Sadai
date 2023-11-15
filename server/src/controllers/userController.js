@@ -68,5 +68,13 @@ const deleteUserById = async (req,res,next)=>{
         next(error);
     }
 };
+const processRegister = async (req,res,next)=>{
+    try {
+        
+        return successResponse(res,{statusCode:200, message:"User deleted"});
+    } catch (error) {
+        next(error);
+    }
+};
 
-module.exports = {getUsers, getUserById, deleteUserById};
+module.exports = {getUsers, getUserById, deleteUserById, processRegister};
