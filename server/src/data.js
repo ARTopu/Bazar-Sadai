@@ -14,13 +14,7 @@ const data = {
         phone: "01712345567",
         address: "Mannat",
     },
-    {
-        name: "Jhon Cena",
-        email: "Jhon@gmail.com",
-        password: "98765",
-        phone: "0179876543",
-        address: "Vhopal",
-    },
+    
     {
         name: "Tasnim Hasan",
         email: "tasnim@gmail.com",
