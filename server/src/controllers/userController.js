@@ -6,7 +6,7 @@ const {findWithId} = require('../services/findItem');
 const { userInfo } = require('os');
 const { deleteImage } = require('../helper/deleteImage');
 const createJSONWebToken = require('../helper/jsonwebtoken');
-const { jwtActivationKey } = require('../secret');
+const { jwtActivationKey, clientURL } = require('../secret');
 
 const getUsers = async (req,res,next)=>{
     try {
@@ -77,7 +77,20 @@ const processRegister = async (req,res,next)=>{
         if(userExists){
             throw createError(406,"User with this email already exists. Please sign in");
         }
-        const token = createJSONWebToken({ name, email, password, phone, address },jwtActivationKey,'10m')
+        //create JWT
+        const token = createJSONWebToken({ name, email, password, phone, address },jwtActivationKey,'10m');
+        //prepare email
+        const emailData = {
+            email,
+            subject:"Accoutn Activation Email",
+            html:
+            `
+            <h2>Hello ${name} !</h2>
+            <p>Please click here to <a href="${clientURL}/api/users/activate/${token}" target= '_blank'>Activate Your Account</a></p>
+            `
+        }
+
+        //send email with nodemailer
         return successResponse(res,{statusCode:200, message:"User created", payload:{token}});
     } catch (error) {
         next(error);
