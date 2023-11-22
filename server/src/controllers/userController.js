@@ -7,6 +7,7 @@ const { userInfo } = require('os');
 const { deleteImage } = require('../helper/deleteImage');
 const createJSONWebToken = require('../helper/jsonwebtoken');
 const { jwtActivationKey, clientURL } = require('../secret');
+const emailWithNodeMailer = require('../helper/email');
 
 const getUsers = async (req,res,next)=>{
     try {
@@ -84,14 +85,19 @@ const processRegister = async (req,res,next)=>{
             email,
             subject:"Accoutn Activation Email",
             html:
-            `
-            <h2>Hello ${name} !</h2>
-            <p>Please click here to <a href="${clientURL}/api/users/activate/${token}" target= '_blank'>Activate Your Account</a></p>
-            `
+            `<h2>Hello ${name} !</h2>
+            <p>Please click here to <a href="${clientURL}/api/users/activate/${token}" target= '_blank'>Activate Your Account</a></p>`,
         }
 
         //send email with nodemailer
-        return successResponse(res,{statusCode:200, message:"User created", payload:{token}});
+        try {
+            await emailWithNodeMailer(emailData);
+        } catch (emailError) {
+            next(createError(500,"Failed to send Varification Email"));
+            return;
+        }
+
+        return successResponse(res,{statusCode:200, message:`Please go to your ${email} for completion your registration process.`, payload:{token}});
     } catch (error) {
         next(error);
     }
